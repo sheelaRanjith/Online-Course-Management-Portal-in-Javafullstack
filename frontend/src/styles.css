@@ -1,0 +1,14 @@
+:root { color-scheme: dark; }
+body { background: #080b12; font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+.glass-nav { background: rgba(8, 11, 18, 0.86); backdrop-filter: blur(14px); }
+.nav-link.active { color: #6edff6 !important; }
+.hero-section { background: radial-gradient(circle at top left, rgba(13, 202, 240, .26), transparent 36%), linear-gradient(135deg, #080b12 0%, #111827 100%); }
+.hero-panel, .panel, .auth-card, .course-card, .dashboard-card, .trainer-card, .testimonial { background: linear-gradient(145deg, rgba(30, 41, 59, .95), rgba(15, 23, 42, .95)); border: 1px solid rgba(148, 163, 184, .18); box-shadow: 0 20px 55px rgba(0, 0, 0, .28); }
+.course-card { transition: transform .2s ease, border-color .2s ease; }
+.course-card:hover { transform: translateY(-6px); border-color: rgba(13, 202, 240, .65); }
+.dark-input { background: #0f172a; border-color: #334155; color: #e2e8f0; }
+.dark-input:focus { background: #111827; border-color: #0dcaf0; color: #fff; box-shadow: 0 0 0 .25rem rgba(13, 202, 240, .12); }
+.auth-card { max-width: 560px; }
+.dashboard-icon { width: 56px; height: 56px; display: grid; place-items: center; border-radius: 16px; font-size: 1.5rem; }
+.btn-info { color: #03131a; font-weight: 700; }
+@media (max-width: 576px) { .display-3 { font-size: 2.55rem; } .hero-section .btn { width: 100%; } }
