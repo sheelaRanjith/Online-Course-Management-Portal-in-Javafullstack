@@ -13,6 +13,7 @@ export default function RoleDashboardLayout({
 }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const overviewTarget = role === 'Admin' ? '/admin#reports' : role === 'Trainer' ? '/trainer#progress' : '/student#learning';
 
   useEffect(() => {
     if (!location.hash) return;
@@ -85,7 +86,7 @@ export default function RoleDashboardLayout({
             <h2 className="mb-2">Your learning operations at a glance</h2>
             <p className="text-secondary mb-0">Track key metrics, jump into common tasks, and keep every course moving forward.</p>
           </div>
-          <Link to={`/${role.toLowerCase()}#reports`} className="btn btn-info">View Reports</Link>
+          <Link to={overviewTarget} className="btn btn-info">View Overview</Link>
         </div>
 
         <div className="row g-4 mb-4">

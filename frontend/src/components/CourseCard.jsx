@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { enrollCourse } from '../services/api.js';
 
 export default function CourseCard({ course }) {
@@ -24,7 +25,10 @@ export default function CourseCard({ course }) {
           <small>Trainer: {trainerName}</small>
           <strong>${price}</strong>
         </div>
-        <button className="btn btn-outline-info w-100" onClick={handleEnroll}>Enroll Now</button>
+        <div className="d-grid gap-2">
+          {course.id && <Link className="btn btn-info" to={`/courses/${course.id}`}>View Details</Link>}
+          <button className="btn btn-outline-info w-100" onClick={handleEnroll}>Enroll Now</button>
+        </div>
       </div>
     </div>
   );

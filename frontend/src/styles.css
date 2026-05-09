@@ -45,3 +45,14 @@ body { background: #080b12; font-family: Inter, system-ui, -apple-system, BlinkM
 .notification-dot { position: relative; color: #e2e8f0; }
 .notification-count { position: absolute; top: -5px; right: -5px; min-width: 20px; height: 20px; display: grid; place-items: center; border-radius: 999px; background: #ef4444; color: #fff; font-size: .7rem; font-weight: 800; border: 2px solid #0f172a; }
 .avatar { text-decoration: none; }
+.dark-input::placeholder { color: #cbd5e1; opacity: .9; }
+.dark-input:-ms-input-placeholder { color: #cbd5e1; }
+.dark-input::-ms-input-placeholder { color: #cbd5e1; }
+.dark-input option { background: #0f172a; color: #f8fafc; }
+.industrial-panel { background: linear-gradient(135deg, rgba(15, 23, 42, .96), rgba(8, 13, 24, .98)); border: 1px solid rgba(94, 234, 212, .2); box-shadow: 0 28px 90px rgba(0, 0, 0, .45), inset 0 1px 0 rgba(255, 255, 255, .04); position: relative; overflow: hidden; }
+.industrial-panel::before { content: ""; position: absolute; inset: 0; pointer-events: none; background-image: linear-gradient(rgba(148, 163, 184, .045) 1px, transparent 1px), linear-gradient(90deg, rgba(148, 163, 184, .045) 1px, transparent 1px); background-size: 28px 28px; mask-image: linear-gradient(to bottom, #000, transparent 82%); }
+.metric-tile { padding: 1rem; border-radius: 18px; background: rgba(2, 6, 23, .58); border: 1px solid rgba(148, 163, 184, .16); }
+.metric-tile span { display: block; color: #94a3b8; font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; }
+.metric-tile strong { display: block; color: #f8fafc; margin-top: .35rem; }
+.panel, .dashboard-card, .course-card, .auth-card { backdrop-filter: blur(16px); }
+.btn { border-radius: 14px; }

@@ -4,6 +4,7 @@ import Footer from './components/Footer.jsx';
 import Home from './pages/Home.jsx';
 import About from './pages/About.jsx';
 import Courses from './pages/Courses.jsx';
+import CourseDetail from './pages/CourseDetail.jsx';
 import Contact from './pages/Contact.jsx';
 import Login from './pages/Login.jsx';
 import Register from './pages/Register.jsx';
@@ -21,6 +22,7 @@ export default function App() {
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
             <Route path="/courses" element={<Courses />} />
+            <Route path="/courses/:courseId" element={<CourseDetail />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
