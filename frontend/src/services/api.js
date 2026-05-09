@@ -14,6 +14,8 @@ export const login = (payload) => api.post('/auth/login', payload);
 export const register = (payload) => api.post('/auth/register', payload);
 export const getCourses = (query = '') => api.get(`/courses${query}`);
 export const createCourse = (payload) => api.post('/courses', payload);
+export const updateCourse = (courseId, payload) => api.put(`/courses/${courseId}`, payload);
+export const deleteCourse = (courseId) => api.delete(`/courses/${courseId}`);
 export const enrollCourse = (courseId) => api.post(`/enrollments/${courseId}`);
 
 export default api;

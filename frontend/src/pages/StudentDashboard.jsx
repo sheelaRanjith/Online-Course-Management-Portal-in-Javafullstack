@@ -39,7 +39,7 @@ export default function StudentDashboard() {
       accent="info"
     >
       <div className="dashboard-content-grid">
-        <div className="panel p-4 rounded-4">
+        <div className="panel p-4 rounded-4" id="learning">
           <div className="d-flex flex-column flex-md-row justify-content-between gap-3 mb-3">
             <div>
               <h3 className="h5 mb-1">Learning Progress</h3>
@@ -54,7 +54,7 @@ export default function StudentDashboard() {
 
         <div className="row g-4">
           <div className="col-lg-6">
-            <div className="panel p-4 rounded-4 h-100">
+            <div className="panel p-4 rounded-4 h-100" id="classes">
               <div className="d-flex flex-column flex-md-row justify-content-between gap-3 mb-4">
                 <div>
                   <h3 className="h5 mb-1">Upcoming Classes</h3>
@@ -77,8 +77,8 @@ export default function StudentDashboard() {
           </div>
 
           <div className="col-lg-6">
-            <div className="panel p-4 rounded-4 h-100">
-              <h3 className="h5 mb-1">Recent Activity</h3>
+            <div className="panel p-4 rounded-4 h-100" id="certificates">
+              <h3 className="h5 mb-1">Recent Activity & Certificates</h3>
               <p className="text-secondary mb-4">Latest milestones from your courses.</p>
               <div className="dashboard-list">
                 {activities.map(([type, title, time]) => (
@@ -93,6 +93,26 @@ export default function StudentDashboard() {
               </div>
             </div>
           </div>
+        </div>
+
+
+        <div className="panel p-4 rounded-4" id="assignments">
+          <div className="d-flex flex-column flex-md-row justify-content-between gap-3 mb-3">
+            <div>
+              <h3 className="h5 mb-1">Pending Assignments</h3>
+              <p className="text-secondary mb-0">Review due work and submit assignments before deadlines.</p>
+            </div>
+            <span className="badge text-bg-warning align-self-start">3 Pending</span>
+          </div>
+          <div className="dashboard-list">
+            <div className="dashboard-list-item"><div><h4 className="h6 mb-1">React Course Catalog UI</h4><p className="text-secondary mb-0">Due Tomorrow</p></div><span className="badge text-bg-warning">Due</span></div>
+            <div className="dashboard-list-item"><div><h4 className="h6 mb-1">Spring Security Notes</h4><p className="text-secondary mb-0">Due Friday</p></div><span className="badge text-bg-info">Open</span></div>
+          </div>
+        </div>
+
+        <div className="panel p-4 rounded-4" id="profile">
+          <h3 className="h5 mb-1">Student Profile</h3>
+          <p className="text-secondary mb-0">Manage your personal details, learning preferences, and account settings here.</p>
         </div>
       </div>
     </RoleDashboardLayout>

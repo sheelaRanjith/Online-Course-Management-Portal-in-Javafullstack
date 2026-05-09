@@ -1,4 +1,5 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import DashboardCard from './DashboardCard.jsx';
 
 export default function RoleDashboardLayout({
@@ -11,6 +12,13 @@ export default function RoleDashboardLayout({
   accent = 'info'
 }) {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (!location.hash) return;
+    const target = document.querySelector(location.hash);
+    target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [location.hash]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -36,7 +44,7 @@ export default function RoleDashboardLayout({
     }
 
     return (
-      <Link to={action.to} className={className} key={action.label}>
+      <Link to={action.to || `/${role.toLowerCase()}`} className={className} key={action.label}>
         {content}
       </Link>
     );

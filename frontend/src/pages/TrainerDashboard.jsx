@@ -39,7 +39,7 @@ export default function TrainerDashboard() {
       accent="success"
     >
       <div className="dashboard-content-grid">
-        <div className="panel p-4 rounded-4">
+        <div className="panel p-4 rounded-4" id="progress">
           <div className="d-flex flex-column flex-md-row justify-content-between gap-3 mb-4">
             <div>
               <h3 className="h5 mb-1">Course Performance Analytics</h3>
@@ -62,7 +62,7 @@ export default function TrainerDashboard() {
           </div>
         </div>
 
-        <div className="panel p-4 rounded-4">
+        <div className="panel p-4 rounded-4" id="materials">
           <div className="d-flex flex-column flex-md-row justify-content-between gap-3 mb-4">
             <div>
               <h3 className="h5 mb-1">Recent Student Submissions</h3>
@@ -81,6 +81,26 @@ export default function TrainerDashboard() {
               </div>
             ))}
           </div>
+        </div>
+
+        <div className="row g-4">
+          <div className="col-lg-6">
+            <div className="panel p-4 rounded-4 h-100" id="courses">
+              <h3 className="h5 mb-1">Manage Courses</h3>
+              <p className="text-secondary mb-0">Open the Admin course manager or connect trainer-specific course APIs here.</p>
+            </div>
+          </div>
+          <div className="col-lg-6">
+            <div className="panel p-4 rounded-4 h-100" id="schedule">
+              <h3 className="h5 mb-1">Schedule Class</h3>
+              <p className="text-secondary mb-0">Plan upcoming live classes and sync calendar events for enrolled students.</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="panel p-4 rounded-4" id="profile">
+          <h3 className="h5 mb-1">Trainer Profile</h3>
+          <p className="text-secondary mb-0">Update trainer bio, expertise, and account preferences here.</p>
         </div>
       </div>
     </RoleDashboardLayout>
