@@ -17,5 +17,7 @@ export const createCourse = (payload) => api.post('/courses', payload);
 export const updateCourse = (courseId, payload) => api.put(`/courses/${courseId}`, payload);
 export const deleteCourse = (courseId) => api.delete(`/courses/${courseId}`);
 export const enrollCourse = (courseId) => api.post(`/enrollments/${courseId}`);
+export const submitAssignment = (courseId, payload) => api.post(`/assignments/${courseId}/submit`, payload);
+export const generateCertificate = (courseId) => api.post(`/certificates/${courseId}/generate`);
 
 export default api;

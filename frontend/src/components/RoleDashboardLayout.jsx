@@ -13,7 +13,7 @@ export default function RoleDashboardLayout({
 }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const overviewTarget = role === 'Admin' ? '/admin#reports' : role === 'Trainer' ? '/trainer#progress' : '/student#learning';
+  const overviewTarget = role === 'Admin' ? '/admin#courses' : role === 'Trainer' ? '/trainer#courses' : '/student#learning';
 
   useEffect(() => {
     if (!location.hash) return;
@@ -82,11 +82,11 @@ export default function RoleDashboardLayout({
 
         <div className="dashboard-hero mb-4">
           <div>
-            <p className="text-info mb-1">Today&apos;s overview</p>
-            <h2 className="mb-2">Your learning operations at a glance</h2>
-            <p className="text-secondary mb-0">Track key metrics, jump into common tasks, and keep every course moving forward.</p>
+            <p className="text-info mb-1">Role workspace</p>
+            <h2 className="mb-2">Use backend data and fill missing information through forms.</h2>
+            <p className="text-secondary mb-0">No decorative quick-access block is shown; the left menu opens real sections or input forms.</p>
           </div>
-          <Link to={overviewTarget} className="btn btn-info">View Overview</Link>
+          <Link to={overviewTarget} className="btn btn-info">Open Workspace</Link>
         </div>
 
         <div className="row g-4 mb-4">
@@ -97,17 +97,7 @@ export default function RoleDashboardLayout({
           ))}
         </div>
 
-        <div className="row g-4 align-items-stretch">
-          <div className="col-xl-4">
-            <div className="panel p-4 rounded-4 h-100">
-              <h3 className="h5 mb-3">Quick Actions</h3>
-              <div className="dashboard-action-grid">
-                {actions.map((action) => renderAction(action, 'btn dashboard-action'))}
-              </div>
-            </div>
-          </div>
-          <div className="col-xl-8">{children}</div>
-        </div>
+        <div className="dashboard-content-wide">{children}</div>
       </div>
     </section>
   );

@@ -1,11 +1,6 @@
+import { useEffect, useMemo, useState } from 'react';
 import RoleDashboardLayout from '../components/RoleDashboardLayout.jsx';
-
-const stats = [
-  { title: 'Total Courses Created', value: '12', icon: '📘', tone: 'info', helper: '4 active cohorts' },
-  { title: 'Total Students', value: '318', icon: '👨‍🎓', tone: 'success', helper: '+28 new learners' },
-  { title: 'Pending Reviews', value: '26', icon: '📥', tone: 'warning', helper: 'Assignments to grade' },
-  { title: 'Upcoming Live Classes', value: '5', icon: '🎥', tone: 'primary', helper: 'This week' }
-];
+import { getCourses, updateCourse } from '../services/api.js';
 
 const actions = [
   { label: 'Manage Courses', icon: '🧭', to: '/trainer#courses' },
@@ -16,92 +11,81 @@ const actions = [
   { label: 'Logout', icon: '🚪', logout: true }
 ];
 
-const submissions = [
-  ['Full Stack Java', 'Nina Carter', 'Capstone API Design', 'High'],
-  ['React Masterclass', 'Mateo Ruiz', 'Dashboard Components', 'Medium'],
-  ['Cloud DevOps', 'Lena Wright', 'CI/CD Pipeline Lab', 'Normal']
-];
-
-const performance = [
-  ['Full Stack Java', '84%', 'bg-info'],
-  ['React Masterclass', '76%', 'bg-success'],
-  ['Cloud DevOps', '69%', 'bg-warning']
-];
+const defaultProfile = { name: 'Ava Brooks', expertise: '', phone: '', bio: '' };
 
 export default function TrainerDashboard() {
+  const [courses, setCourses] = useState([]);
+  const [message, setMessage] = useState('');
+  const [profile, setProfile] = useState(() => JSON.parse(localStorage.getItem('trainerProfile') || JSON.stringify(defaultProfile)));
+  const [material, setMaterial] = useState({ courseId: '', materialUrl: '' });
+  const [liveClass, setLiveClass] = useState({ courseId: '', title: '', startsAt: '', meetingUrl: '' });
+
+  const loadCourses = () => getCourses()
+    .then(({ data }) => setCourses(Array.isArray(data) ? data : []))
+    .catch(() => setMessage('Courses are not available. Ask Admin to add courses first.'));
+
+  useEffect(() => { loadCourses(); }, []);
+
+  const stats = useMemo(() => [
+    { title: 'Backend Courses', value: courses.length.toString(), icon: '📘', tone: 'info', helper: 'Loaded from API' },
+    { title: 'Total Students', value: '—', icon: '👨‍🎓', tone: 'success', helper: 'Needs enrollment report API' },
+    { title: 'Pending Reviews', value: '—', icon: '📥', tone: 'warning', helper: 'Needs assignment list API' },
+    { title: 'Upcoming Live Classes', value: '—', icon: '🎥', tone: 'primary', helper: 'Use schedule form' }
+  ], [courses.length]);
+
+  const saveProfile = (event) => {
+    event.preventDefault();
+    localStorage.setItem('trainerProfile', JSON.stringify(profile));
+    setMessage('Trainer profile saved locally. Add backend profile endpoint to persist it.');
+  };
+
+  const uploadMaterial = async (event) => {
+    event.preventDefault();
+    const selected = courses.find((course) => String(course.id) === String(material.courseId));
+    if (!selected) return setMessage('Select a valid course.');
+    try {
+      await updateCourse(selected.id, { title: selected.title, description: selected.description, category: selected.category, price: selected.price, materialUrl: material.materialUrl });
+      setMessage('Study material URL updated for the selected course.');
+      setMaterial({ courseId: '', materialUrl: '' });
+      loadCourses();
+    } catch {
+      setMessage('Unable to upload material. Login as Trainer/Admin and try again.');
+    }
+  };
+
+  const scheduleClass = (event) => {
+    event.preventDefault();
+    localStorage.setItem('trainerLiveClass', JSON.stringify(liveClass));
+    setMessage('Live class details saved locally. Add backend live-class table/API to persist schedules.');
+    setLiveClass({ courseId: '', title: '', startsAt: '', meetingUrl: '' });
+  };
+
   return (
-    <RoleDashboardLayout
-      role="Trainer"
-      name="Ava Brooks"
-      subtitle="Manage courses, upload study materials, and review student progress."
-      stats={stats}
-      actions={actions}
-      accent="success"
-    >
+    <RoleDashboardLayout role="Trainer" name={profile.name || 'Trainer'} subtitle="Trainer access uses backend courses and forms for materials, schedule, and profile data." stats={stats} actions={actions} accent="success">
       <div className="dashboard-content-grid">
-        <div className="panel p-4 rounded-4" id="progress">
-          <div className="d-flex flex-column flex-md-row justify-content-between gap-3 mb-4">
-            <div>
-              <h3 className="h5 mb-1">Course Performance Analytics</h3>
-              <p className="text-secondary mb-0">Completion performance across active cohorts.</p>
-            </div>
-            <button className="btn btn-outline-info">View Analytics</button>
-          </div>
-          <div className="dashboard-list">
-            {performance.map(([course, progress, tone]) => (
-              <div className="analytics-row" key={course}>
-                <div className="d-flex justify-content-between mb-2">
-                  <span>{course}</span>
-                  <span className="text-secondary">{progress}</span>
-                </div>
-                <div className="progress dashboard-progress" role="progressbar" aria-label={`${course} performance`} aria-valuenow={parseInt(progress, 10)} aria-valuemin="0" aria-valuemax="100">
-                  <div className={`progress-bar ${tone}`} style={{ width: progress }}>{progress}</div>
-                </div>
-              </div>
-            ))}
-          </div>
+        {message && <div className="alert alert-info mb-0">{message}</div>}
+
+        <div className="panel p-4 rounded-4" id="courses">
+          <div className="d-flex flex-column flex-md-row justify-content-between gap-3 mb-4"><div><h3 className="h5 mb-1">Assigned / Backend Courses</h3><p className="text-secondary mb-0">Only backend courses are displayed here. Admin creates courses; trainers upload material.</p></div><button className="btn btn-outline-info" onClick={loadCourses}>Refresh</button></div>
+          <div className="row g-3">{courses.length === 0 && <div className="col-12 text-secondary">No backend courses found.</div>}{courses.map((course) => <div className="col-md-6" key={course.id}><div className="metric-tile h-100"><span>{course.category || 'Course'}</span><strong>{course.title}</strong><p className="text-secondary mb-2 mt-2">{course.materialUrl ? 'Material uploaded' : 'Material pending'}</p></div></div>)}</div>
         </div>
 
-        <div className="panel p-4 rounded-4" id="materials">
-          <div className="d-flex flex-column flex-md-row justify-content-between gap-3 mb-4">
-            <div>
-              <h3 className="h5 mb-1">Recent Student Submissions</h3>
-              <p className="text-secondary mb-0">Prioritize feedback for active cohorts.</p>
-            </div>
-            <button className="btn btn-outline-info">Review All</button>
-          </div>
-          <div className="dashboard-list">
-            {submissions.map(([course, student, assignment, priority]) => (
-              <div className="dashboard-list-item" key={`${course}-${student}`}>
-                <div>
-                  <h4 className="h6 mb-1">{assignment}</h4>
-                  <p className="text-secondary mb-0">{student} · {course}</p>
-                </div>
-                <span className="badge text-bg-warning">{priority}</span>
-              </div>
-            ))}
-          </div>
-        </div>
+        <form className="panel p-4 rounded-4" id="materials" onSubmit={uploadMaterial}>
+          <h3 className="h5 mb-1">Upload Study Material</h3><p className="text-secondary mb-4">Backend stores material URL on the course, so trainer must provide it here.</p>
+          <div className="row g-3"><div className="col-md-5"><select className="form-select dark-input" value={material.courseId} onChange={(e) => setMaterial({ ...material, courseId: e.target.value })} required><option value="">Select course</option>{courses.map((course) => <option value={course.id} key={course.id}>{course.title}</option>)}</select></div><div className="col-md-5"><input className="form-control dark-input" placeholder="Study material URL" value={material.materialUrl} onChange={(e) => setMaterial({ ...material, materialUrl: e.target.value })} required /></div><div className="col-md-2"><button className="btn btn-info w-100">Upload</button></div></div>
+        </form>
 
-        <div className="row g-4">
-          <div className="col-lg-6">
-            <div className="panel p-4 rounded-4 h-100" id="courses">
-              <h3 className="h5 mb-1">Manage Courses</h3>
-              <p className="text-secondary mb-0">Open the Admin course manager or connect trainer-specific course APIs here.</p>
-            </div>
-          </div>
-          <div className="col-lg-6">
-            <div className="panel p-4 rounded-4 h-100" id="schedule">
-              <h3 className="h5 mb-1">Schedule Class</h3>
-              <p className="text-secondary mb-0">Plan upcoming live classes and sync calendar events for enrolled students.</p>
-            </div>
-          </div>
-        </div>
+        <div className="panel p-4 rounded-4" id="progress"><h3 className="h5 mb-1">Student Progress</h3><p className="text-secondary mb-0">No fake progress is shown. Add enrollment/progress report endpoints to display real student progress here.</p></div>
 
-        <div className="panel p-4 rounded-4" id="profile">
-          <h3 className="h5 mb-1">Trainer Profile</h3>
-          <p className="text-secondary mb-0">Update trainer bio, expertise, and account preferences here.</p>
-        </div>
+        <form className="panel p-4 rounded-4" id="schedule" onSubmit={scheduleClass}>
+          <h3 className="h5 mb-1">Schedule Live Class</h3><p className="text-secondary mb-4">Live-class backend table is not available yet, so collect schedule details through this form.</p>
+          <div className="row g-3"><div className="col-md-3"><select className="form-select dark-input" value={liveClass.courseId} onChange={(e) => setLiveClass({ ...liveClass, courseId: e.target.value })} required><option value="">Select course</option>{courses.map((course) => <option value={course.id} key={course.id}>{course.title}</option>)}</select></div><div className="col-md-3"><input className="form-control dark-input" placeholder="Class title" value={liveClass.title} onChange={(e) => setLiveClass({ ...liveClass, title: e.target.value })} required /></div><div className="col-md-3"><input className="form-control dark-input" type="datetime-local" value={liveClass.startsAt} onChange={(e) => setLiveClass({ ...liveClass, startsAt: e.target.value })} required /></div><div className="col-md-3"><input className="form-control dark-input" placeholder="Meeting URL" value={liveClass.meetingUrl} onChange={(e) => setLiveClass({ ...liveClass, meetingUrl: e.target.value })} required /></div><div className="col-12"><button className="btn btn-info">Save Schedule</button></div></div>
+        </form>
+
+        <form className="panel p-4 rounded-4" id="profile" onSubmit={saveProfile}>
+          <h3 className="h5 mb-1">Trainer Profile Form</h3><p className="text-secondary mb-4">Collect trainer profile information instead of showing placeholder trainer details.</p>
+          <div className="row g-3"><div className="col-md-6"><input className="form-control dark-input" placeholder="Trainer name" value={profile.name} onChange={(e) => setProfile({ ...profile, name: e.target.value })} /></div><div className="col-md-6"><input className="form-control dark-input" placeholder="Expertise" value={profile.expertise} onChange={(e) => setProfile({ ...profile, expertise: e.target.value })} /></div><div className="col-md-6"><input className="form-control dark-input" placeholder="Phone number" value={profile.phone} onChange={(e) => setProfile({ ...profile, phone: e.target.value })} /></div><div className="col-md-6"><input className="form-control dark-input" placeholder="Short bio" value={profile.bio} onChange={(e) => setProfile({ ...profile, bio: e.target.value })} /></div><div className="col-12"><button className="btn btn-info">Save Profile</button></div></div>
+        </form>
       </div>
     </RoleDashboardLayout>
   );

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import RoleDashboardLayout from '../components/RoleDashboardLayout.jsx';
-import { createCourse, deleteCourse, getCourses, updateCourse } from '../services/api.js';
+import { createCourse, deleteCourse, getCourses, register, updateCourse } from '../services/api.js';
 
 const emptyCourse = { title: '', description: '', category: '', price: '', materialUrl: '' };
 
@@ -13,31 +13,14 @@ const actions = [
   { label: 'Logout', icon: '🚪', logout: true }
 ];
 
-const registrations = [
-  ['Nina Carter', 'Student', 'nina@example.com', 'Today'],
-  ['Omar Singh', 'Trainer', 'omar@example.com', 'Yesterday'],
-  ['Lena Wright', 'Student', 'lena@example.com', 'May 07, 2026'],
-  ['Mateo Ruiz', 'Student', 'mateo@example.com', 'May 06, 2026']
-];
-
-const analytics = [
-  ['Monthly Enrollments', '72%', 'bg-info'],
-  ['Course Completion', '64%', 'bg-success'],
-  ['Trainer Utilization', '81%', 'bg-warning']
-];
-
-const userManagement = [
-  ['Pending trainer approvals', '6', 'Review applications'],
-  ['Inactive student accounts', '23', 'Send re-engagement email'],
-  ['Open support tickets', '11', 'Assign to admin team']
-];
-
 export default function AdminDashboard() {
   const [courses, setCourses] = useState([]);
   const [courseForm, setCourseForm] = useState(emptyCourse);
   const [editingCourseId, setEditingCourseId] = useState(null);
   const [courseMessage, setCourseMessage] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [userForm, setUserForm] = useState({ name: '', email: '', password: '', role: 'STUDENT' });
+  const [settingsForm, setSettingsForm] = useState({ portalName: 'CourseFlow', supportEmail: '', currency: 'USD' });
 
   const loadCourses = async () => {
     try {
@@ -55,11 +38,11 @@ export default function AdminDashboard() {
   }, []);
 
   const stats = useMemo(() => [
-    { title: 'Total Users', value: '1,248', icon: '👥', tone: 'info', helper: '+86 this month' },
-    { title: 'Total Students', value: '1,018', icon: '🎓', tone: 'success', helper: '81% of users' },
-    { title: 'Total Trainers', value: '74', icon: '👩‍🏫', tone: 'primary', helper: '12 departments' },
-    { title: 'Total Courses', value: courses.length.toString(), icon: '📚', tone: 'warning', helper: 'Managed by admin' },
-    { title: 'Revenue', value: '$84.2k', icon: '💳', tone: 'success', helper: '+14% vs last month' }
+    { title: 'Total Users', value: '—', icon: '👥', tone: 'info', helper: 'Needs users API' },
+    { title: 'Total Students', value: '—', icon: '🎓', tone: 'success', helper: 'Create via form' },
+    { title: 'Total Trainers', value: '—', icon: '👩‍🏫', tone: 'primary', helper: 'Create via form' },
+    { title: 'Total Courses', value: courses.length.toString(), icon: '📚', tone: 'warning', helper: 'Loaded from backend' },
+    { title: 'Revenue', value: '—', icon: '💳', tone: 'success', helper: 'Needs payment API' }
   ], [courses.length]);
 
   const updateForm = (field, value) => setCourseForm((current) => ({ ...current, [field]: value }));
@@ -116,6 +99,23 @@ export default function AdminDashboard() {
     } catch {
       setCourseMessage('Unable to delete course. Only Admin can delete courses.');
     }
+  };
+
+  const createUser = async (event) => {
+    event.preventDefault();
+    try {
+      await register(userForm);
+      setCourseMessage(`${userForm.role} account created successfully.`);
+      setUserForm({ name: '', email: '', password: '', role: 'STUDENT' });
+    } catch {
+      setCourseMessage('Unable to create user. Check email/password or backend availability.');
+    }
+  };
+
+  const saveSettings = (event) => {
+    event.preventDefault();
+    localStorage.setItem('portalSettings', JSON.stringify(settingsForm));
+    setCourseMessage('Portal settings saved locally. Add backend settings API to persist in MySQL.');
   };
 
   return (
@@ -195,66 +195,53 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        <div className="panel p-4 rounded-4" id="users">
-          <div className="d-flex flex-column flex-md-row justify-content-between gap-3 mb-4">
-            <div>
-              <h3 className="h5 mb-1">Recent Registrations</h3>
-              <p className="text-secondary mb-0">Latest users who joined the portal.</p>
-            </div>
-            <button className="btn btn-outline-info">Export CSV</button>
+        <form className="panel p-4 rounded-4" id="users" onSubmit={createUser}>
+          <h3 className="h5 mb-1">Manage Users</h3>
+          <p className="text-secondary mb-4">No fake recent-registration data is shown. Create real Admin, Trainer, or Student accounts through the backend registration API.</p>
+          <div className="row g-3">
+            <div className="col-md-3"><input className="form-control dark-input" placeholder="Full name" value={userForm.name} onChange={(e) => setUserForm({ ...userForm, name: e.target.value })} required /></div>
+            <div className="col-md-3"><input className="form-control dark-input" type="email" placeholder="Email" value={userForm.email} onChange={(e) => setUserForm({ ...userForm, email: e.target.value })} required /></div>
+            <div className="col-md-2"><input className="form-control dark-input" type="password" placeholder="Password" value={userForm.password} onChange={(e) => setUserForm({ ...userForm, password: e.target.value })} required /></div>
+            <div className="col-md-2"><select className="form-select dark-input" value={userForm.role} onChange={(e) => setUserForm({ ...userForm, role: e.target.value })}><option value="STUDENT">Student</option><option value="TRAINER">Trainer</option><option value="ADMIN">Admin</option></select></div>
+            <div className="col-md-2"><button className="btn btn-info w-100">Create User</button></div>
           </div>
-          <div className="table-responsive">
-            <table className="table table-dark table-hover align-middle dashboard-table mb-0">
-              <thead>
-                <tr><th>Name</th><th>Role</th><th>Email</th><th>Joined</th></tr>
-              </thead>
-              <tbody>
-                {registrations.map(([name, role, email, joined]) => (
-                  <tr key={email}><td>{name}</td><td><span className="badge text-bg-info">{role}</span></td><td>{email}</td><td>{joined}</td></tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        </form>
 
         <div className="row g-4">
           <div className="col-lg-6">
             <div className="panel p-4 rounded-4 h-100" id="reports">
-              <h3 className="h5 mb-1">Platform Analytics</h3>
-              <p className="text-secondary mb-4">Operational health across learning activity.</p>
+              <h3 className="h5 mb-1">Platform Reports</h3>
+              <p className="text-secondary mb-4">Only real backend course information is available in this starter. Add reporting APIs for revenue, registrations, and activity.</p>
               <div className="dashboard-list">
-                {analytics.map(([label, progress, tone]) => (
-                  <div className="analytics-row" key={label}>
-                    <div className="d-flex justify-content-between mb-2"><span>{label}</span><span className="text-secondary">{progress}</span></div>
-                    <div className="progress dashboard-progress" role="progressbar" aria-label={label} aria-valuenow={parseInt(progress, 10)} aria-valuemin="0" aria-valuemax="100">
-                      <div className={`progress-bar ${tone}`} style={{ width: progress }}>{progress}</div>
-                    </div>
-                  </div>
-                ))}
+                <div className="dashboard-list-item"><div><h4 className="h6 mb-1">Backend Courses</h4><p className="text-secondary mb-0">Courses currently stored in MySQL/API</p></div><span className="badge text-bg-info">{courses.length}</span></div>
+                <div className="dashboard-list-item"><div><h4 className="h6 mb-1">Revenue</h4><p className="text-secondary mb-0">Payment API not added yet</p></div><span className="badge text-bg-secondary">Not available</span></div>
               </div>
             </div>
           </div>
 
           <div className="col-lg-6">
-            <div className="panel p-4 rounded-4 h-100" id="settings">
-              <h3 className="h5 mb-1">User Management</h3>
-              <p className="text-secondary mb-4">Priority admin actions for the portal team.</p>
-              <div className="dashboard-list">
-                {userManagement.map(([label, count, nextStep]) => (
-                  <div className="dashboard-list-item" key={label}>
-                    <div><h4 className="h6 mb-1">{label}</h4><p className="text-secondary mb-0">{nextStep}</p></div>
-                    <span className="badge text-bg-warning">{count}</span>
-                  </div>
-                ))}
+            <form className="panel p-4 rounded-4 h-100" id="settings" onSubmit={saveSettings}>
+              <h3 className="h5 mb-1">Portal Settings Form</h3>
+              <p className="text-secondary mb-4">Settings backend is not available yet, so collect portal information here.</p>
+              <div className="d-grid gap-3">
+                <input className="form-control dark-input" placeholder="Portal name" value={settingsForm.portalName} onChange={(e) => setSettingsForm({ ...settingsForm, portalName: e.target.value })} />
+                <input className="form-control dark-input" type="email" placeholder="Support email" value={settingsForm.supportEmail} onChange={(e) => setSettingsForm({ ...settingsForm, supportEmail: e.target.value })} />
+                <input className="form-control dark-input" placeholder="Currency" value={settingsForm.currency} onChange={(e) => setSettingsForm({ ...settingsForm, currency: e.target.value })} />
+                <button className="btn btn-info">Save Settings</button>
               </div>
-            </div>
+            </form>
           </div>
         </div>
 
-        <div className="panel p-4 rounded-4" id="profile">
-          <h3 className="h5 mb-1">Admin Profile</h3>
-          <p className="text-secondary mb-0">Profile settings section placeholder. Connect this with the user API when profile endpoints are added.</p>
-        </div>
+        <form className="panel p-4 rounded-4" id="profile" onSubmit={saveSettings}>
+          <h3 className="h5 mb-1">Admin Profile Form</h3>
+          <p className="text-secondary mb-4">Admin profile endpoint is not available yet. Use these fields to collect missing profile information.</p>
+          <div className="row g-3">
+            <div className="col-md-6"><input className="form-control dark-input" placeholder="Admin display name" value={settingsForm.portalName} onChange={(e) => setSettingsForm({ ...settingsForm, portalName: e.target.value })} /></div>
+            <div className="col-md-6"><input className="form-control dark-input" placeholder="Admin support email" value={settingsForm.supportEmail} onChange={(e) => setSettingsForm({ ...settingsForm, supportEmail: e.target.value })} /></div>
+            <div className="col-12"><button className="btn btn-info">Save Admin Info</button></div>
+          </div>
+        </form>
       </div>
     </RoleDashboardLayout>
   );
